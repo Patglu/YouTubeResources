@@ -28,12 +28,26 @@ struct TodoService {
         let url = URL(string: "https://jsonplaceholder.typicode.com/todos")!
         let (data, response) = try await URLSession.shared.data(from: url)
         
+        /// Allowing us to throw and error when this is an invalid request
         guard let response = response as? HTTPURLResponse,
               response.statusCode == 200 else {
             throw TodoError.invalidRequest
         }
         
-        return[]
+        let decodedData = try JSONDecoder().decode([Todo].self, from: data)
+        return decodedData
     }
 }
  let service = TodoService()
+/*
+ This function throws an error so we need to map this with a try,
+ await allows us to tell the systems that this is a suspension point
+ */
+Task{
+    do {
+        let todos = try await service.fetch()
+        dump(todos)
+    } catch {
+        print(error)
+    }
+}
