@@ -28,8 +28,10 @@ struct TodoService {
         let url = URL(string: "https://jsonplaceholder.typicode.com/todos")!
         let (data, response) = try await URLSession.shared.data(from: url)
         
-        guard let response = response as HTTPURLResponse,
-              
+        guard let response = response as? HTTPURLResponse,
+              response.statusCode == 200 else {
+            throw TodoError.invalidRequest
+        }
         
         return[]
     }
